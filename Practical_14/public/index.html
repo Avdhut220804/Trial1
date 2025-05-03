@@ -5,11 +5,17 @@
   <h1>Users</h1>
   <ul id="userList"></ul>
   <script>
-    fetch('/api/users')
+    fetch('http://localhost:3000/api/users')
       .then(res => res.json())
       .then(data => {
-        document.getElementById('userList').innerHTML = 
-          data.map(u => `<li>${u.name} (${u.age})</li>`).join('');
+        console.log(data);
+         elem = document.getElementById('userList');
+         let listItem ='';
+        for(let i = 0; i < data.length; i++) {
+          listItem += `<li>${data[i].name} (${data[i].age})</li>`;
+        }
+        elem.innerHTML = listItem;
+          // data.map(u => `<li>${u.name} (${u.age})</li>`).join('');
       });
   </script>
 </body>

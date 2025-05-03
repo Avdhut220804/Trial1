@@ -2,33 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Simple To-Do List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To do list</title>
 </head>
 <body>
-  <h2>To-Do List</h2>
-  <input id="taskInput" placeholder="New Task">
-  <button onclick="addTask()">Add</button>
-  <ul id="taskList"></ul>
+    <h1>To do list</h1>
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <button id="addTaskButton" onclick="addTask()">Add Task</button>
+    <ul id="taskList"></ul>
+    <script>
+      async function fetchTasks() {
+        const response = await fetch('http://localhost:3000/');
+        const tasks = await response.json();
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = ''; // Clear existing tasks
 
-  <script>
-    function sendToServer(data) {
-      return new Promise(res => setTimeout(() => res(console.log('Saved:', data)), 300));
-    }
+        tasks.forEach(task => {
+            // const listItem = document.createElement('li');
+            // listItem.textContent = task;
+            // taskList.appendChild(listItem);
 
-    function addTask() {
-      const input = document.getElementById('taskInput');
-      if (!input.value.trim()) return;
-      const li = document.createElement('li');
-      li.innerHTML = `${input.value} <button onclick="deleteTask(this)">❌</button>`;
-      document.getElementById('taskList').appendChild(li);
-      sendToServer({ action: 'add', task: input.value });
-      input.value = '';
-    }
+            const listItem = `<li>${task} <button onclick="deleteTask('${task}')">del</button></li>`;
+            taskList.innerHTML +=listItem;
+        });
+      }
+      async function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+        const taskText = taskInput.value.trim();
 
-    function deleteTask(btn) {
-      const li = btn.parentNode;
-      sendToServer({ action: 'delete', task: li.firstChild.textContent.trim() }).then(() => li.remove());
-    }
-  </script>
+        if (taskText === '') {
+            alert('Please enter a task!');
+            return;
+        }
+        const response = await fetch('http://localhost:3000/add',{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ todo: taskText })
+        })
+
+        // const listItem = document.createElement('li');
+        // listItem.textContent = taskText;
+        // taskList.appendChild(listItem);
+        await fetchTasks(); // Refresh the task list after adding a new task
+        // Clear the input field
+        taskInput.value = '';
+      }
+
+      async function deleteTask(taskText) {
+        // const taskInput = document.getElementById('taskInput');
+        // const taskList = document.getElementById('taskList');
+        // const taskText = taskText.trim();
+
+        if (taskText === '') {
+            alert('Please enter a task!');
+            return;
+        }
+        const response = await fetch('http://localhost:3000/delete',{
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ todo: taskText })
+        })
+
+        // const listItem = document.createElement('li');
+        // listItem.textContent = taskText;
+        // taskList.appendChild(listItem);
+        await fetchTasks(); // Refresh the task list after adding a new task
+        // Clear the input field
+        taskInput.value = '';
+      }
+    </script>
 </body>
 </html>
